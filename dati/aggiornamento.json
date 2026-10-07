@@ -1,15 +1,19 @@
 {
  "istat_valore_aggiunto": {
-  "scaricato": "2026-10-07T12:11:30Z",
-  "controllato": "2026-10-07T12:27:01Z",
+  "scaricato": "2026-10-07T12:32:35Z",
+  "controllato": "2026-10-07T12:32:35Z",
   "ultimo_anno": 2023,
   "righe": 72,
   "edizione": "2025M12",
   "ultimo_aggiornamento_istat": "2025-12-22T10:03:25.564Z",
   "dati_modificati": "2026-10-07T12:11:30Z"
  },
- "controllato": "2026-10-07T12:30:01Z",
- "avvisi": [],
+ "controllato": "2026-10-07T12:32:35Z",
+ "avvisi": [
+  "confronto ISTAT / Tagliacarne 2023, Varese: 28433.0 / 29091.0 (-2.26%)",
+  "confronto ISTAT / Tagliacarne 2023, Lombardia: 440812.0 / 441960.9 (-0.26%)",
+  "confronto ISTAT / Tagliacarne 2023, Italia: 1924797.1 / 1924797.6 (-0.00%)"
+ ],
  "tagliacarne": {
   "anno": 2024,
   "versione": "27-10-2025",
@@ -18,8 +22,8 @@
   "sha256": "08c40bbc17505813a92fc79aab47b1a9a8b546bb203468ca9403f526311bf4ee",
   "dimensione": 27953,
   "righe": 131,
-  "scaricato": "2026-10-07T12:28:40Z",
-  "controllato": "2026-10-07T12:28:40Z",
+  "scaricato": "2026-10-07T12:31:43Z",
+  "controllato": "2026-10-07T12:31:43Z",
   "dati_modificati": "2026-10-07T12:11:43Z"
  },
  "archivio_tagliacarne": [
