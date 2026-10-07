@@ -74,7 +74,7 @@ SCARTO_BLOCCO = 0.10      # oltre 10 punti: blocco
 PAUSA_ISTAT = 13          # ISTAT accetta circa 5 richieste al minuto per indirizzo
 PAUSE_SITO = [30, 90, 180]
 PAUSE_ISTAT_TENTATIVI = [60, 180, 300]
-TIMEOUT = 120
+TIMEOUT = 300             # la richiesta del valore aggiunto di tutte le province pesa ~800 KB e da GitHub ha impiegato fino a 80 secondi
 GIORNI_MAX_ISTAT = 28
 USER_AGENT = "Mozilla/5.0 (report-conti-economici; Camera di Commercio di Varese)"
 
@@ -512,10 +512,10 @@ def parte_istat(info, args, esiti, problemi, avvisi):
     ris_va = leggi_csv_istat(scarica(url_dati(FLUSSO_VA, "A..B1G_B_W2_S1.V..", ANNO_ISTAT_INIZIO), "text/csv", PAUSE_ISTAT_TENTATIVI, "ISTAT"),
                              ["REF_AREA", "TIME_PERIOD", "OBS_VALUE", "EDITION"], "valore aggiunto provinciale")
     time.sleep(PAUSA_ISTAT)
-    pop1 = leggi_csv_istat(scarica(url_dati(FLUSSO_POP, f"A.{VARESE}+{REGIONE}+{ITALIA}.JAN.9.TOTAL.99", ANNO_ISTAT_INIZIO), "text/csv", [], "ISTAT"),
+    pop1 = leggi_csv_istat(scarica(url_dati(FLUSSO_POP, f"A.{VARESE}+{REGIONE}+{ITALIA}.JAN.9.TOTAL.99", ANNO_ISTAT_INIZIO), "text/csv", PAUSE_ISTAT_TENTATIVI, "ISTAT"),
                            ["REF_AREA", "TIME_PERIOD", "OBS_VALUE"], "popolazione residente")
     time.sleep(PAUSA_ISTAT)
-    pop2 = leggi_csv_istat(scarica(url_dati(FLUSSO_POP_RIC, f"A.{VARESE}+{REGIONE}+{ITALIA}.JAN.TOTAL.9.TOTAL", ANNO_ISTAT_INIZIO), "text/csv", [], "ISTAT"),
+    pop2 = leggi_csv_istat(scarica(url_dati(FLUSSO_POP_RIC, f"A.{VARESE}+{REGIONE}+{ITALIA}.JAN.TOTAL.9.TOTAL", ANNO_ISTAT_INIZIO), "text/csv", PAUSE_ISTAT_TENTATIVI, "ISTAT"),
                            ["REF_AREA", "TIME_PERIOD", "OBS_VALUE"], "popolazione ricostruita")
     aree, edizione = serie_istat_va(ris_va)
     va = calcola_serie_va(aree)
