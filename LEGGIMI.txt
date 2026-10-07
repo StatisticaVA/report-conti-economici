@@ -1,0 +1,62 @@
+CONTI ECONOMICI – VALORE AGGIUNTO (Varese · Lombardia · Italia)
+================================================================
+Versione 1.0 – 07/10/2026. Sito separato dagli altri (import/export, imprese, credito, lavoro, popolazione), con il logo della Camera di Commercio di Varese.
+
+A COSA SERVE
+Crea le 6 tabelle Excel per Osserva sul valore aggiunto (sezione «Conti economici → Valore aggiunto»), con i dati del Centro Studi delle Camere di commercio
+Guglielmo Tagliacarne e di ISTAT. Non serve installare niente: è una pagina web che funziona nel browser (Chrome, Edge, Firefox, Safari).
+
+DA DOVE VENGONO I NUMERI (regola decisa il 07/10/2026, è quella di Osserva)
+Per l'anno scelto N (di solito l'ultimo):
+  - N                  il file Excel del Centro Studi Tagliacarne di quell'anno (esce una volta l'anno: finora a novembre 2024 e a ottobre 2025);
+  - N-1 (anno prima)   il file Tagliacarne che avevamo già l'anno prima: viene conservato nell'archivio (dati/tagliacarne_AAAA.csv) e NON viene mai
+                       sostituito quando ne esce uno più nuovo;
+  - N-2 e prima        ISTAT (conti economici territoriali): Varese; Lombardia = somma delle 12 province; Italia = somma delle 107 province + «extra-regio».
+Quando esce il file Tagliacarne dell'anno nuovo (per esempio il 2025) basta aprire la pagina: l'anno nuovo compare da solo, il 2024 resta quello archiviato,
+il 2023 passa a ISTAT. Gli anni vecchi non si ricalcolano e le tabelle di un anno già fatto non cambiano.
+Valori iniziali: il 2023 (anno prima del 2024) NON è scaricabile da fonti pubbliche: sono i valori di Osserva (file di input dell'ufficio: Varese 29.091,0,
+Lombardia 441.960,9, Italia 1.924.797,6 milioni; pro-capite 33.058,23 / 44.221,38 / 32.632,42), salvati una volta in dati/tagliacarne_2023.csv.
+
+COME SI USA
+1. Apri la pagina (sito pubblicato oppure doppio clic su index.html).
+2. Riquadro «2 · Dati»: se è VERDE i dati sono già caricati, non devi fare niente. Se è ARANCIONE, oppure il Centro Studi ha pubblicato ma i dati automatici non sono
+   ancora arrivati: scarica dal sito del Centro Studi Tagliacarne il file Excel «Valore aggiunto per provincia e branca di attività economica»
+   (pulsante nella pagina) e trascinalo nel riquadro tratteggiato, senza aprirlo. Per l'anno prima e per ISTAT servono anche i file CSV della cartella «dati» del sito.
+3. Scegli l'anno (la pagina propone da sola l'ultimo).
+4. Controlla che le 6 tabelle siano «pronte» e premi «Genera tabelle». Scarica i file uno per uno o tutti insieme con «Scarica tutto (ZIP)».
+
+TABELLE PRODOTTE (nomi, fogli e intestazioni come i modelli di Osserva, in formato .xlsx)
+- VA_SINTESI.xlsx            Varese, Lombardia, Italia: valore aggiunto, quote di Varese su Lombardia e su Italia, pro-capite; anno scelto e anno prima; T.var %
+- VA_TEMPO_tot.xlsx          valore aggiunto (milioni di euro) degli ultimi 15 anni
+- VA_TEMPO_procapite.xlsx    valore aggiunto pro-capite (euro) degli ultimi 15 anni
+- VA_TERRITORI.xlsx          12 province lombarde, Lombardia, Italia: valore aggiunto, quote % su Lombardia e Italia, pro-capite
+- VA_SETTORI.xlsx            agricoltura, industria in senso stretto, costruzioni, servizi: valori assoluti e quote % (province, Lombardia, Italia)
+- VA_SETTORI_grafico.xlsx    quote % per settore di Varese
+Regole: ogni voce del file Tagliacarne si arrotonda a 1 decimale PRIMA di sommare i tre gruppi di servizi e di calcolare le quote; le variazioni % sono calcolate su valori
+non arrotondati e arrotondate a 2 decimali; il pro-capite è il valore aggiunto diviso la media della popolazione al 1° gennaio dell'anno e dell'anno dopo
+(nel file Tagliacarne è già calcolato; per gli anni ISTAT lo calcola la pagina). I numeri sono numeri veri; i formati mostrano i decimali (i vecchi modelli di Osserva
+avevano un formato «0» che li nascondeva).
+
+AGGIORNAMENTO AUTOMATICO DEI DATI (.github/workflows/aggiorna-dati.yml, ogni giorno alle 06:00 UTC, cioè le 8 in Italia con l'ora legale e le 7 con quella solare)
+Il sito del Centro Studi non permette a una pagina web di leggere i dati da sola, per questo c'è un programma su GitHub (aggiorna_dati.py):
+1. legge la pagina «Statistiche territoriali» del Centro Studi e trova da solo il link del file «Valore aggiunto per provincia e branca… Anno XXXX (versione …)»
+   (l'indirizzo del file contiene una data di caricamento e cambia: non è scritto nel programma), scarica il file (28 KB) e lo confronta con quello già salvato;
+2. se è nuovo lo controlla: intestazioni e righe attese, somma delle branche = totale, Lombardia = somma delle 12 province, Italia = province + extra-regio,
+   variazione sull'anno prima (oltre ±8% avviso, oltre ±15% blocco) e crescita molto diversa da quella dell'Italia (oltre 4 punti avviso, oltre 10 blocco: segnala che
+   Tagliacarne ha forse rivisto l'anno prima), poi lo salva in dati/tagliacarne_AAAA.csv senza toccare gli anni più vecchi;
+3. ISTAT: controlla la data di aggiornamento dichiarata da ISTAT (una richiesta) e, solo se è cambiata o se sono passati 28 giorni, riscarica valore aggiunto provinciale
+   e popolazione e li salva in dati/istat_valore_aggiunto.csv (con controlli: Italia e Lombardia devono tornare con il dato nazionale/regionale ISTAT);
+4. le due parti sono indipendenti: se una ha un problema l'altra si aggiorna lo stesso e i file della parte con il problema non vengono toccati.
+Se qualcosa non funziona (sito che non risponde, file o link cambiati, numeri non plausibili) arriva un'e-mail con la spiegazione; se il Centro Studi o ISTAT non hanno
+pubblicato niente di nuovo non arriva nulla. Si può lanciare a mano: GitHub → «Actions» → «Aggiorna dati valore aggiunto» → «Run workflow»
+(«Forza» riscarica tutto, «Accetta» salva anche se un controllo di plausibilità segnala un'anomalia dopo che l'hai verificata a mano, «Prova» simula un problema).
+
+FILE
+index.html                           la pagina (motore + interfaccia, un solo file, senza librerie esterne)
+LEGGIMI.txt                          queste istruzioni
+aggiorna_dati.py                     scarica e controlla i dati (solo libreria standard di Python)
+segnala_problemi.py                  avviso per e-mail se l'aggiornamento non riesce
+.github/workflows/aggiorna-dati.yml  il controllo automatico giornaliero
+dati/tagliacarne_AAAA.csv            un file per anno (archivio, mai sovrascritto da un anno più recente)
+dati/istat_valore_aggiunto.csv       valore aggiunto ISTAT (Varese, Lombardia, Italia) e popolazione media, dal 2000
+dati/aggiornamento.json              date dei controlli, versione del file Tagliacarne, elenco dell'archivio, avvisi

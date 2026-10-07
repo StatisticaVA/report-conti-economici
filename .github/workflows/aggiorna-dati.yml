@@ -1,0 +1,87 @@
+# Aggiornamento automatico dei dati del VALORE AGGIUNTO usati dal sito «Conti economici»
+# (file Excel del Centro Studi Tagliacarne + valore aggiunto provinciale e popolazione ISTAT).
+# Il Centro Studi Tagliacarne pubblica il file con l'ultimo anno una volta l'anno (finora 18/11/2024 e 27/10/2025: di solito tra fine ottobre e novembre);
+# ISTAT pubblica i dati provinciali a dicembre. Il controllo gira OGNI GIORNO alle 6 UTC (le 8 in Italia con l'ora legale, le 7 con quella solare; GitHub può ritardare di qualche minuto): costa poche richieste
+# (la pagina e il file Excel di Tagliacarne, 28 KB, e una richiesta a ISTAT per la data di aggiornamento) e salva qualcosa solo se i dati cambiano.
+# Si può lanciare anche a mano: scheda «Actions» → «Aggiorna dati valore aggiunto» → «Run workflow»
+#   «Forza»    scarica e ricontrolla tutto anche senza novità;
+#   «Accetta»  salva anche se un controllo di plausibilità segnala un'anomalia (da usare solo dopo aver verificato a mano);
+#   «Prova»    simula un problema, per controllare che l'e-mail di avviso arrivi.
+# Avviso per e-mail SOLO se qualcosa non funziona (sito che non risponde, file o link cambiati, numeri non plausibili…):
+# segnala_problemi.py apre una segnalazione (issue) in italiano, che GitHub manda per e-mail; quando torna tutto a posto la chiude da sola.
+name: Aggiorna dati valore aggiunto
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      forza:
+        description: "Forza: scarica e ricontrolla tutto anche se non ci sono novità"
+        type: boolean
+        default: false
+      accetta:
+        description: "Accetta: salva anche se un controllo di plausibilità segnala un'anomalia (solo dopo verifica a mano)"
+        type: boolean
+        default: false
+      prova:
+        description: "Prova: simula un problema per controllare che l'e-mail di avviso arrivi"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  issues: write
+
+# un solo aggiornamento alla volta: evita che due salvataggi si incrocino
+concurrency:
+  group: aggiorna-dati
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica i dati
+        id: scarica
+        env:
+          PROVA_ERRORE: ${{ inputs.prova }}
+          FORZA: ${{ inputs.forza }}
+          ACCETTA: ${{ inputs.accetta }}
+        run: python3 aggiorna_dati.py --esito "$RUNNER_TEMP/esito.json" $([ "$FORZA" = "true" ] && echo --forza) $([ "$ACCETTA" = "true" ] && echo --accetta)
+
+      - name: Salva i dati nel repository
+        id: salva
+        if: steps.scarica.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dati
+          # se è cambiata solo la data dell'ultimo controllo (aggiornamento.json) si salva solo nel primo giorno del mese (giorno ≤ 7, una volta)
+          # o se lanciato a mano: un salvataggio al mese tiene attivo il repository (GitHub ferma i cron dopo 60 giorni senza modifiche)
+          cambiati="$(git diff --cached --name-only)"
+          if [ "$cambiati" = "dati/aggiornamento.json" ] && [ "$((10#$(date -u +%d)))" -ne 1 ] && [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Dati invariati: niente da salvare."
+            git reset -q
+          fi
+          if git diff --cached --quiet; then
+            echo "Nessuna modifica."
+          else
+            git commit -m "Dati valore aggiunto aggiornati il $(date -u +%Y-%m-%d)"
+            git pull --rebase -q
+            git push
+            # ricostruisce il sito GitHub Pages con i dati nuovi
+            gh api -X POST "repos/${{ github.repository }}/pages/builds" || echo "Richiesta di build di Pages non riuscita (il sito si aggiorna comunque al prossimo push)."
+          fi
+
+      - name: Avvisa per e-mail se qualcosa non ha funzionato
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 segnala_problemi.py --esito "$RUNNER_TEMP/esito.json" --scarica "${{ steps.scarica.outcome }}" --salva "${{ steps.salva.outcome }}"

@@ -1,0 +1,29 @@
+{
+ "istat_valore_aggiunto": {
+  "scaricato": "2026-10-07T12:11:30Z",
+  "controllato": "2026-10-07T12:27:01Z",
+  "ultimo_anno": 2023,
+  "righe": 72,
+  "edizione": "2025M12",
+  "ultimo_aggiornamento_istat": "2025-12-22T10:03:25.564Z",
+  "dati_modificati": "2026-10-07T12:11:30Z"
+ },
+ "controllato": "2026-10-07T12:27:01Z",
+ "avvisi": [],
+ "tagliacarne": {
+  "anno": 2024,
+  "versione": "27-10-2025",
+  "url": "https://www.tagliacarne.it/files/260326/tavola_valore_aggiunto_2024_versione_27_10_2025.xlsx",
+  "titolo": "Valore aggiunto per provincia e branca di attività economica. Anno 2024 (versione 27-10-2025)",
+  "sha256": "08c40bbc17505813a92fc79aab47b1a9a8b546bb203468ca9403f526311bf4ee",
+  "dimensione": 27953,
+  "righe": 131,
+  "scaricato": "2026-10-07T12:11:43Z",
+  "controllato": "2026-10-07T12:26:57Z",
+  "dati_modificati": "2026-10-07T12:11:43Z"
+ },
+ "archivio_tagliacarne": [
+  2023,
+  2024
+ ]
+}
